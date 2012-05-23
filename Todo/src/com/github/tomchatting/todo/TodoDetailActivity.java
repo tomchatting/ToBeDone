@@ -63,8 +63,8 @@ public class TodoDetailActivity extends Activity {
 	        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	        startActivity(intent);
 	        return true;
-	    case R.id.todo_edit_confirm:
-	    	setResult(RESULT_OK);
+	    case R.id.todo_delete:
+	    	mDbHelper.deleteTodo(mRowId);
 			finish();
 	    	return true;
 	    default:

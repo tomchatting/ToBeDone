@@ -1,5 +1,7 @@
 package com.github.tomchatting.todo.database;
 
+import java.io.IOException;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -57,6 +59,19 @@ public class TodoDbAdapter {
 	 */
 	public boolean deleteTodo(long rowId) {
 		return db.delete(DB_TABLE, KEY_ROWID + "=" + rowId, null) > 0;
+	}
+	
+	/**
+	 * Deletes the nth todo in the database (for use by the CAB)
+	 */
+	public boolean deleteNthTodo(long n) throws IOException {
+		try {
+			db.execSQL("DELETE FROM " + DB_TABLE + " ORDER BY _id ASC LIMIT 1,"+n+";");
+			return true;
+		} catch (Exception e){
+			throw new IOException(e.toString());
+		}
+		
 	}
 
 	/**

@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -46,6 +48,59 @@ public class TodoActivity extends ListActivity {
               
         setListAdapter(mListAdapter);
 		registerForContextMenu(getListView());
+		
+		final ListView listView = getListView();
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+
+			@Override
+			public void onItemCheckedStateChanged(ActionMode mode, int position,
+			                                        long id, boolean checked) {
+			    updateSubtitle(mode);
+			}
+			  
+			private void updateSubtitle(ActionMode mode) {
+			    mode.setSubtitle("("+listView.getCheckedItemCount()+")");
+			}
+		    @Override
+		    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		        // Respond to clicks on the actions in the CAB
+		        switch (item.getItemId()) {
+		            case R.id.todo_delete:
+		                deleteSelectedItems();
+		                mode.finish(); // Action picked, so close the CAB
+		                return true;
+		            default:
+		                return false;
+		        }
+		    }
+
+		    private void deleteSelectedItems() {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+		    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		        // Inflate the menu for the CAB
+		        MenuInflater inflater = mode.getMenuInflater();
+		        inflater.inflate(R.menu.edit_menu, menu);
+		        return true;
+		    }
+
+		    @Override
+		    public void onDestroyActionMode(ActionMode mode) {
+		        // Here you can make any necessary updates to the activity when
+		        // the CAB is removed. By default, selected items are deselected/unchecked.
+		    }
+
+		    @Override
+		    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		        // Here you can perform updates to the CAB due to
+		        // an invalidate() request
+		        return false;
+		    }
+		});
     }
     
     @Override
