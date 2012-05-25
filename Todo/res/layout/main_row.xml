@@ -3,7 +3,6 @@
     android:id="@+id/linearLayoutRow"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EEEEEE"
     android:baselineAligned="true"
     android:orientation="vertical"
     android:fillViewport="true"
@@ -14,6 +13,7 @@
         android:fillViewport="true"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:background="?android:attr/activatedBackgroundIndicator"
         android:padding="6dp" >
 
         <CheckBox

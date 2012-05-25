@@ -1,8 +1,9 @@
 package com.github.tomchatting.todo;
 
+import java.io.IOException;
+
 import com.github.tomchatting.todo.database.TodoDbAdapter;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -38,16 +40,8 @@ public class TodoActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 		this.getListView().setDividerHeight(2);
-		dbHelper = new TodoDbAdapter(this);
-		dbHelper.open();
-		Cursor myCur = null;
-
-        myCur = dbHelper.fetchAllTodos();
-
-        mListAdapter = new fillData(TodoActivity.this, myCur);
-              
-        setListAdapter(mListAdapter);
-		registerForContextMenu(getListView());
+		
+		refreshTodos();
 		
 		final ListView listView = getListView();
 		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -77,12 +71,22 @@ public class TodoActivity extends ListActivity {
 
 		    private void deleteSelectedItems() {
 				// TODO Auto-generated method stub
-				
+		    	SparseBooleanArray checked=getListView().getCheckedItemPositions();
+		    	for (int i=0;i<checked.size();i++) {
+		            if (checked.valueAt(i)) {
+		              int position=checked.keyAt(i);
+			    		dbHelper.open();
+			    		dbHelper.deleteNthTodo(position+1);
+		              	dbHelper.close();
+		            }
+		    	}
+		    	refreshTodos();
 			}
 
 			@Override
 		    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 		        // Inflate the menu for the CAB
+				mode.setTitle(R.string.todo_cab_bar);
 		        MenuInflater inflater = mode.getMenuInflater();
 		        inflater.inflate(R.menu.edit_menu, menu);
 		        return true;
@@ -103,7 +107,22 @@ public class TodoActivity extends ListActivity {
 		});
     }
     
-    @Override
+    private void refreshTodos() {
+		// TODO Auto-generated method stub
+    	dbHelper = new TodoDbAdapter(this);
+		dbHelper.open();
+		Cursor myCur = null;
+
+        myCur = dbHelper.fetchAllTodos();
+
+        mListAdapter = new fillData(TodoActivity.this, myCur);
+              
+        setListAdapter(mListAdapter);
+		registerForContextMenu(getListView());
+		dbHelper.close();
+	}
+
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
@@ -123,13 +142,7 @@ public class TodoActivity extends ListActivity {
 			createTodo();
 			return true;
 		case R.id.menu_refresh:
-			Cursor myCur = null;
-
-	        myCur = dbHelper.fetchAllTodos();
-
-	        mListAdapter = new fillData(TodoActivity.this, myCur);
-	              
-	        setListAdapter(mListAdapter);
+			refreshTodos();
 			return true;
 		case R.id.menu_about:
 			new AlertDialog.Builder( this )
@@ -154,13 +167,7 @@ public class TodoActivity extends ListActivity {
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 					.getMenuInfo();
 			dbHelper.deleteTodo(info.id);
-			Cursor myCur = null;
-
-	        myCur = dbHelper.fetchAllTodos();
-
-	        mListAdapter = new fillData(TodoActivity.this, myCur);
-	              
-	        setListAdapter(mListAdapter);
+			refreshTodos();
 			return true;
 		}
 		return super.onContextItemSelected(item);
@@ -192,14 +199,7 @@ public class TodoActivity extends ListActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent intent) {
-		Cursor myCur = null;
-
-        myCur = dbHelper.fetchAllTodos();
-
-        mListAdapter = new fillData(TodoActivity.this, myCur);
-              
-        setListAdapter(mListAdapter);
-        
+		refreshTodos();        
 	}
 
 
@@ -237,7 +237,7 @@ public class TodoActivity extends ListActivity {
             
         	cbListCheck.setEnabled(false);
         	if (completed==0) {
-        		gl1.setBackgroundResource(R.color.white);
+        		//gl1.setBackgroundResource(R.color.white);
         		tvBottomText.setTypeface(null,Typeface.BOLD); 
         	} else {
         		tvTopText.setTextColor(R.color.darkGrey);

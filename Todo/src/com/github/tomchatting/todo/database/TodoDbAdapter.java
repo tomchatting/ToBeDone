@@ -64,14 +64,10 @@ public class TodoDbAdapter {
 	/**
 	 * Deletes the nth todo in the database (for use by the CAB)
 	 */
-	public boolean deleteNthTodo(long n) throws IOException {
-		try {
-			db.execSQL("DELETE FROM " + DB_TABLE + " ORDER BY _id ASC LIMIT 1,"+n+";");
-			return true;
-		} catch (Exception e){
-			throw new IOException(e.toString());
-		}
-		
+	public boolean deleteNthTodo(long n) {
+		db.execSQL("DELETE FROM " + DB_TABLE + " WHERE _id IN (SELECT _id FROM "+DB_TABLE+" ORDER BY _id LIMIT 1, "+n+");");
+		//delete from my_table where rowid in (select rowid from my_table where item=1 limit 1 )
+		return true;
 	}
 
 	/**

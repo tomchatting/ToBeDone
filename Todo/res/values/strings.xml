@@ -5,6 +5,7 @@
     <string name="app_name">Task</string>
 	<string name="menu_delete">Delete Task</string>
 	<string name="menu_save">Create Task</string>
+	<string name="todo_cab_bar">Selected Todo(s)</string>
 	<string name="todo_summary">Summary</string>
 	<string name="todo_edit_summary">Summary</string>
 	<string name="todo_edit_description">Description</string>
